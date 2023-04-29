@@ -74,7 +74,7 @@ st.write("The bar plot below plots the number of victims injured/ killed by the 
 ## Showing interactive bar plot and controls
 #fig1_controls, fig1 = st.columns([1,2])
 #with fig1_controls:
-control_expander = st.expander("Select the options to view plots", expanded=False)
+control_expander = st.expander("Select the options to view interactive plots", expanded=False)
 with control_expander:
     injury_type = st.selectbox(
         'Select type of injury:',
