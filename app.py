@@ -5,6 +5,8 @@ from bokeh.models import Legend, HoverTool, ColumnDataSource,HBar, FactorRange
 from bokeh.plotting import figure
 
 from os.path import dirname, join
+import utills;
+st.set_page_config(layout="wide")
 
 data_raw_filtered = pd.read_csv(join(dirname(__file__),'data','Motor_collision_filtered.csv'))
 
@@ -24,6 +26,54 @@ data_filtered = data_raw_filtered[['NUMBER OF PERSONS INJURED',
        'CONTRIBUTING FACTOR VEHICLE 2', 'CONTRIBUTING FACTOR VEHICLE 3',
        'CONTRIBUTING FACTOR VEHICLE 4', 'CONTRIBUTING FACTOR VEHICLE 5']]
 
+# Remove unnecessary columns for this part
+data_filtered_for_intersection_plot = data_raw_filtered[['CRASH DATE', 'Intersection','Hour','ON STREET NAME','CROSS STREET NAME',
+                      'CONTRIBUTING FACTOR VEHICLE 1', 'CONTRIBUTING FACTOR VEHICLE 2','CONTRIBUTING FACTOR VEHICLE 3','CONTRIBUTING FACTOR VEHICLE 4', 'CONTRIBUTING FACTOR VEHICLE 5',
+                      'VEHICLE TYPE CODE 1','VEHICLE TYPE CODE 2','VEHICLE TYPE CODE 3','VEHICLE TYPE CODE 4','VEHICLE TYPE CODE 5']]
+
+# Lists containing the top 10 most popular categories in each column which are the ones to appear in the visualisation
+top_ten_vec_type_1 = data_filtered_for_intersection_plot['VEHICLE TYPE CODE 1'].value_counts()[:10].index.tolist()
+top_ten_vec_type_2 = data_filtered_for_intersection_plot['VEHICLE TYPE CODE 2'].value_counts()[:10].index.tolist()
+top_ten_vec_type_3 = data_filtered_for_intersection_plot['VEHICLE TYPE CODE 3'].value_counts()[:10].index.tolist()
+top_ten_vec_type_4 = data_filtered_for_intersection_plot['VEHICLE TYPE CODE 4'].value_counts()[:10].index.tolist()
+top_ten_vec_type_5 = data_filtered_for_intersection_plot['VEHICLE TYPE CODE 5'].value_counts()[:10].index.tolist()
+# Some interection values were partly NaN, so it had to be filtered using the original columns
+data_inter = data_filtered_for_intersection_plot[~data_filtered_for_intersection_plot['ON STREET NAME'].isna() & ~data_filtered_for_intersection_plot['CROSS STREET NAME'].isna()]
+top_ten_inter = data_inter['Intersection'].value_counts()[:10].index.tolist()
+
+# Filtering the dataset to only contain the rows which are in the top 10 most popular. Also dropped the unnecessary columns
+data_filt_vec_type_1 = data_filtered_for_intersection_plot[data_filtered_for_intersection_plot['VEHICLE TYPE CODE 1'].isin(top_ten_vec_type_1)].drop(['ON STREET NAME', 'CROSS STREET NAME'], axis = 'columns')
+data_filt_vec_type_2 = data_filtered_for_intersection_plot[data_filtered_for_intersection_plot['VEHICLE TYPE CODE 2'].isin(top_ten_vec_type_2)].drop(['ON STREET NAME', 'CROSS STREET NAME'], axis = 'columns')
+data_filt_vec_type_3 = data_filtered_for_intersection_plot[data_filtered_for_intersection_plot['VEHICLE TYPE CODE 3'].isin(top_ten_vec_type_3)].drop(['ON STREET NAME', 'CROSS STREET NAME'], axis = 'columns')
+data_filt_vec_type_4 = data_filtered_for_intersection_plot[data_filtered_for_intersection_plot['VEHICLE TYPE CODE 4'].isin(top_ten_vec_type_4)].drop(['ON STREET NAME', 'CROSS STREET NAME'], axis = 'columns')
+data_filt_vec_type_5 = data_filtered_for_intersection_plot[data_filtered_for_intersection_plot['VEHICLE TYPE CODE 5'].isin(top_ten_vec_type_5)].drop(['ON STREET NAME', 'CROSS STREET NAME'], axis = 'columns')
+data_filt_inter = data_filtered_for_intersection_plot[data_filtered_for_intersection_plot['Intersection'].isin(top_ten_inter)].drop(['ON STREET NAME', 'CROSS STREET NAME'], axis = 'columns')
+
+# Creation of the secondary filter lists, which contain the top 10 most popular categories in the other column of the filtered dataset
+top_ten_con_fac1 = data_filtered_for_intersection_plot['CONTRIBUTING FACTOR VEHICLE 1'].value_counts()[:10].index.tolist()
+top_ten_con_fac2 = data_filtered_for_intersection_plot['CONTRIBUTING FACTOR VEHICLE 2'].value_counts()[:10].index.tolist()
+top_ten_con_fac3 = data_filtered_for_intersection_plot['CONTRIBUTING FACTOR VEHICLE 3'].value_counts()[:10].index.tolist()
+top_ten_con_fac4 = data_filtered_for_intersection_plot['CONTRIBUTING FACTOR VEHICLE 4'].value_counts()[:10].index.tolist()
+top_ten_con_fac5 = data_filtered_for_intersection_plot['CONTRIBUTING FACTOR VEHICLE 5'].value_counts()[:10].index.tolist()
+top_ten_con_facint = data_filt_inter['CONTRIBUTING FACTOR VEHICLE 1'].value_counts()[:10].index.tolist()
+# Added an 'All' option to all filters
+top_ten_con_fac1.insert(0,'All')
+top_ten_con_fac2.insert(0,'All')
+top_ten_con_fac3.insert(0,'All')
+top_ten_con_fac4.insert(0,'All')
+top_ten_con_fac5.insert(0,'All')
+top_ten_con_facint.insert(0,'All')
+
+## Frontend display
+st.header('Motor Vehicle Collisions - Crashes')
+st.write("The [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95) data set contain information from all police reported motor vehicle collisions in NYC. The time frame on the data is from 2012 to 2020. The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision.")
+st.subheader("Bar plot of Number of persons injured/killed related to Contributing Factors")
+st.write("The bar plot below plots the number of victims injured/ killed by the different contributing factors.\
+                The plot can be viewed in either linear or in log scale. Furthermore, the plot can also be viewed by \
+                ranging the slider to get the idea about which contributing factor is more responsible for injuring/killing \
+                victims. This plot may take a while to update and load, please be patient.")
+
+## Showing interactive bar plot and controls
 fig1_controls, fig1 = st.columns([1,2])
 with fig1_controls:
     injury_type = st.selectbox(
@@ -31,7 +81,7 @@ with fig1_controls:
         injured_killed
     )
     contribution_factor = st.selectbox(
-        'Contribution Factor: ',
+        'Contribution Factor vehicles: ',
         cont_factor
     )
     plot_scale = st.radio(
@@ -39,60 +89,38 @@ with fig1_controls:
         ['Linear Scale', 'Log Scale']
     )
     no_vehicles = st.slider(
-        'No of contributing vehicles: ',
+        'Contribution Factors: ',
         5,50,5
     )
 
-# Make dataset
-def make_dataset(selected_options):
-        by_factor_injured = pd.DataFrame(columns=['no_factors', 'no_victims','axis_type'])
-        group_by = data_filtered.groupby(selected_options[1],as_index = False)[selected_options[0]].sum()
-        #print(group_by)
-        by_factor_injured['no_factors'] = group_by[selected_options[1]]
-        by_factor_injured['no_victims'] = group_by[selected_options[0]]
-        by_factor_injured['axis_type'] = selected_options[2]
-        by_factor_injured['height'] = 450 + 5 * selected_options[3]
-        by_factor_injured = by_factor_injured.sort_values(['no_victims'], ascending=True)
-        by_factor_range_injured = by_factor_injured.tail(selected_options[3])
-        #print(by_factor_range_injured)
-        
-        return ColumnDataSource(by_factor_range_injured)
-
 ## initial selection
 initial_selections = [injury_type, contribution_factor, plot_scale,no_vehicles]
-src = make_dataset(initial_selections)
+src = utills.make_dataset(initial_selections, data_filtered)
 
-def make_plot(src, plot_scale):
-        # Blank plot in linear scale
-        if plot_scale=='Linear Scale':
-            p = figure(y_range=FactorRange(factors=list(src.data['no_factors'])),plot_width = 700, plot_height = 450, title = 'Bar plot of number of victims injured or killed',
-                  y_axis_label = 'Contributing factor', x_axis_label = 'No of victims',toolbar_location=None)
-        else:
-        # Blank plot in log scale
-            p = figure(y_range=FactorRange(factors=list(src.data['no_factors'])),plot_width = 700, plot_height = 450, title = 'Bar plot of no of victims injured or killed',
-                  y_axis_label = 'Contributing factor', x_axis_label = 'No of victims', x_axis_type = 'log',toolbar_location=None)
-        
-        glyph = HBar(y='no_factors', right="no_victims", left=0.00001, height=0.5,  fill_color="#460E61")
-        p.add_glyph(src, glyph)
-        
-        # Hover tool with hline mode
-        hover = HoverTool(tooltips=[('Number of victims', '@no_victims'), 
-                                    ('Contributing Factor', '@no_factors')],
-                          mode='hline')
-        p.add_tools(hover)        
-        return p
-plot = make_plot(src, plot_scale)
-def style(p):
-        # Title 
-        p.title.align = 'center'
-        p.title.text_font_size = '14pt'
-        p.title.text_font = 'serif'
+plot_bar = utills.make_plot(src, plot_scale)
 
-        # Axis titles
-        p.xaxis.axis_label_text_font_size = '14pt'
-        p.xaxis.axis_label_text_font_style = 'bold'
-        p.yaxis.axis_label_text_font_size = '14pt'
-        p.yaxis.axis_label_text_font_style = 'bold'
-        return p
 with fig1:
-    st.bokeh_chart(style(plot), use_container_width=True)
+    st.bokeh_chart(plot_bar, use_container_width=True)
+
+### interactive plot section of intersection part
+st.subheader('Bar plot of Collisions per hour related to Vehicle type')
+st.write('''This barplot shows the proportion of accidents during the day for the most common vehicle types. 
+It is also possible to filter on the contributing causes for each vehicle in the collision. The labels 
+"Vehicle type code #" and "Contributing factor vehicle #" addresses the different cars involved in an accident
+ with number one being the primary car in the accident. This plot may take a while to update and load, please be patient. Furthermore due to constraints in processing time in order to run the visualisation this plot contains 2/41 parts of the original dataset, this amounts 80 000 observation.''')
+## Making tab and intersection plot
+vec_type_list = list(['VEHICLE TYPE CODE 1','VEHICLE TYPE CODE 2','VEHICLE TYPE CODE 3','VEHICLE TYPE CODE 4',
+'VEHICLE TYPE CODE 5', 'Intersection'])
+tab1, tab2,tab3,tab4,tab5,tab6 = st.tabs(vec_type_list)
+with tab1:
+    utills.make_tab_content(data_filt_vec_type_1,vec_type_list[0],top_ten_con_fac1,top_ten_vec_type_1)
+with tab2:
+    utills.make_tab_content(data_filt_vec_type_2,vec_type_list[1],top_ten_con_fac2,top_ten_vec_type_2)
+with tab3:
+    utills.make_tab_content(data_filt_vec_type_3,vec_type_list[2],top_ten_con_fac3,top_ten_vec_type_3)
+with tab4:
+    utills.make_tab_content(data_filt_vec_type_4,vec_type_list[3],top_ten_con_fac4,top_ten_vec_type_4)
+with tab5:
+    utills.make_tab_content(data_filt_vec_type_5,vec_type_list[4],top_ten_con_fac5,top_ten_vec_type_5)
+with tab6:
+    utills.make_tab_content(data_filt_inter,vec_type_list[5],top_ten_con_facint,top_ten_inter)
