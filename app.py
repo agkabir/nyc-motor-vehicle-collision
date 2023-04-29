@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from bokeh.models import Legend, HoverTool, ColumnDataSource,HBar, FactorRange
-from bokeh.plotting import figure
 
 from os.path import dirname, join
 import utills;
@@ -74,8 +72,10 @@ st.write("The bar plot below plots the number of victims injured/ killed by the 
                 victims. This plot may take a while to update and load, please be patient.")
 
 ## Showing interactive bar plot and controls
-fig1_controls, fig1 = st.columns([1,2])
-with fig1_controls:
+#fig1_controls, fig1 = st.columns([1,2])
+#with fig1_controls:
+control_expander = st.expander("Select the options to view plots", expanded=False)
+with control_expander:
     injury_type = st.selectbox(
         'Select type of injury:',
         injured_killed
@@ -99,8 +99,8 @@ src = utills.make_dataset(initial_selections, data_filtered)
 
 plot_bar = utills.make_plot(src, plot_scale)
 
-with fig1:
-    st.bokeh_chart(plot_bar, use_container_width=True)
+#with fig1:
+st.bokeh_chart(plot_bar, use_container_width=True)
 
 ### interactive plot section of intersection part
 st.subheader('Bar plot of Collisions per hour related to Vehicle type')
