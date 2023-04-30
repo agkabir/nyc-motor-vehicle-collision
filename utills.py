@@ -57,24 +57,28 @@ def style(p):
         return p
 
 def make_plot(src, plot_scale):
-        # Blank plot in linear scale
-        if plot_scale=='Linear Scale':
-            p = figure(y_range=FactorRange(factors=list(src.data['no_factors'])),plot_width = 700, plot_height = 450, title = 'Bar plot of number of victims injured or killed',
-                  y_axis_label = 'Contributing factors', x_axis_label = 'No of victims',toolbar_location=None)
-        else:
-        # Blank plot in log scale
-            p = figure(y_range=FactorRange(factors=list(src.data['no_factors'])),plot_width = 700, plot_height = 450, title = 'Bar plot of no of victims injured or killed',
-                  y_axis_label = 'Contributing factors', x_axis_label = 'No of victims (in log scale)', x_axis_type = 'log',toolbar_location=None)
-        
-        glyph = HBar(y='no_factors', right="no_victims", left=0.00001, height=0.5,  fill_color="#460E61")
-        p.add_glyph(src, glyph)
-        
-        # Hover tool with hline mode
-        hover = HoverTool(tooltips=[('Number of victims', '@no_victims'), 
-                                    ('Contributing Factor', '@no_factors')],
-                          mode='hline')
-        p.add_tools(hover)        
-        return style(p)
+    if len(src.data['no_factors'])>20:
+        plot_height =700
+    else:
+        plot_height = 450
+    # Blank plot in linear scale
+    if plot_scale=='Linear Scale':
+        p = figure(y_range=FactorRange(factors=list(src.data['no_factors'])),plot_width = 700, plot_height = plot_height, title = 'Bar plot of number of victims injured or killed',
+                y_axis_label = 'Contributing factors', x_axis_label = 'No of victims',toolbar_location=None)
+    else:
+    # Blank plot in log scale
+        p = figure(y_range=FactorRange(factors=list(src.data['no_factors'])),plot_width = 700, plot_height = plot_height, title = 'Bar plot of no of victims injured or killed',
+                y_axis_label = 'Contributing factors', x_axis_label = 'No of victims (in log scale)', x_axis_type = 'log',toolbar_location=None)
+    
+    glyph = HBar(y='no_factors', right="no_victims", left=0.00001, height=0.5,  fill_color="#460E61")
+    p.add_glyph(src, glyph)
+    
+    # Hover tool with hline mode
+    hover = HoverTool(tooltips=[('Number of victims', '@no_victims'), 
+                                ('Contributing Factor', '@no_factors')],
+                        mode='hline')
+    p.add_tools(hover)        
+    return style(p)
 
 def make_plot_intersection(src, top_ten_vec_type):
         # Blank plot with correct labels
