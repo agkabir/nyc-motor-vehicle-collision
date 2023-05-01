@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.express as px
 from os.path import dirname, join
 import utills;
 st.set_page_config(layout="wide")
@@ -110,15 +110,21 @@ st.subheader('Basic Statistics:')
 st.write(data_raw_filtered.describe())
 st.subheader('Weekly pattern of collisions')
 # bar plot of nubmer of vehicle colission per hour in whole week
-colission_by_weekhour = data_raw_filtered.groupby(['Weekhour']).size()
-colission_counts_weekhour = colission_by_weekhour.loc[colission_by_weekhour.index]
-fig = plt.figure(figsize=(30,10))
-plt.bar(colission_by_weekhour.index, colission_counts_weekhour)
-plt.xlabel('Weekhour')
-plt.ylabel('Colission Count')
-plt.xticks(rotation=0)
-plt.title('Number of colision on week hours')
-st.pyplot(fig)
+colission_by_weekhour = pd.DataFrame(data_raw_filtered.groupby(['Weekhour']).size())
+
+colission_by_weekhour.rename(columns={0: "Colission Count"}, inplace=True)
+fig = px.bar(colission_by_weekhour, y="Colission Count",title='Number of colision on week hours', width=700)
+fig.update_layout(
+    title_font_family="Verdana",
+    xaxis_title="<b>Weekhour</b>",
+        yaxis_title="<b>Colission Count</b>",
+        font=dict(
+        size=14,
+        color='#000000'
+    ),
+    #showlegend=False
+)
+st.plotly_chart(fig)
 
 st.subheader("Interactive bar plot of Number of persons injured/killed related to Contributing Factors")
 st.write("The bar plot below plots the number of victims injured/ killed by the different contributing factors.\
