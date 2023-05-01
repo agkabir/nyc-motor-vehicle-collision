@@ -1,20 +1,62 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-
+import matplotlib.pyplot as plt
 from os.path import dirname, join
 import utills;
 st.set_page_config(layout="wide")
 
-data_raw_filtered = pd.read_csv(join(dirname(__file__),'data','Motor_collision_filtered.csv'))
-
-
-
+data_raw = pd.read_csv(join(dirname(__file__),'data','Motor_Vehicle_Collisions_Crashes.csv'), sep=',', error_bad_lines=False, index_col=False, dtype='unicode',low_memory = False)
 injured_killed = list(['NUMBER OF PERSONS INJURED','NUMBER OF PERSONS KILLED', 'NUMBER OF PEDESTRIANS INJURED','NUMBER OF PEDESTRIANS KILLED',
                        'NUMBER OF CYCLIST INJURED','NUMBER OF CYCLIST KILLED', 'NUMBER OF MOTORIST INJURED','NUMBER OF MOTORIST KILLED'])
 cont_factor = list(['CONTRIBUTING FACTOR VEHICLE 1','CONTRIBUTING FACTOR VEHICLE 2', 'CONTRIBUTING FACTOR VEHICLE 3',
        'CONTRIBUTING FACTOR VEHICLE 4', 'CONTRIBUTING FACTOR VEHICLE 5'])
 
+data_raw[injured_killed] = data_raw[injured_killed].fillna(0)
+# Casting columns into integer type
+data_raw['NUMBER OF PERSONS INJURED'] = data_raw["NUMBER OF PERSONS INJURED"].astype(float).astype(int)
+data_raw['NUMBER OF PERSONS KILLED'] = data_raw["NUMBER OF PERSONS KILLED"].astype(float).astype(int)
+data_raw['NUMBER OF PEDESTRIANS INJURED'] = data_raw["NUMBER OF PEDESTRIANS INJURED"].astype(float).astype(int)
+data_raw['NUMBER OF PEDESTRIANS KILLED'] = data_raw["NUMBER OF PEDESTRIANS KILLED"].astype(float).astype(int)
+
+data_raw['NUMBER OF CYCLIST INJURED'] = data_raw["NUMBER OF CYCLIST INJURED"].astype(float).astype(int)
+data_raw['NUMBER OF CYCLIST KILLED'] = data_raw["NUMBER OF CYCLIST KILLED"].astype(float).astype(int)
+
+data_raw['NUMBER OF MOTORIST INJURED'] = data_raw["NUMBER OF MOTORIST INJURED"].astype(float).astype(int)
+data_raw['NUMBER OF MOTORIST KILLED'] = data_raw["NUMBER OF MOTORIST KILLED"].astype(float).astype(int)
+
+# Creation of datetime columns
+data_raw['CRASH_DATE_TIME'] = pd.to_datetime(data_raw['CRASH DATE'].str[0:10]+' '+data_raw['CRASH TIME'], format = '%m/%d/%Y %H:%M',infer_datetime_format=True)
+data_raw['Year'] = data_raw['CRASH_DATE_TIME'].dt.year
+data_raw['Hour'] = data_raw['CRASH_DATE_TIME'].dt.hour
+data_raw['Weekday'] = data_raw['CRASH_DATE_TIME'].dt.weekday
+data_raw['Weekhour'] = data_raw['Hour'] + data_raw['Weekday']*24
+# Remove extra spaces at the end of each row
+data_raw['ON STREET NAME'] = data_raw['ON STREET NAME'].str.strip()
+data_raw['OFF STREET NAME'] = data_raw['OFF STREET NAME'].str.strip()
+# Creation of the Intersection column
+def intersection(df):
+    inter = str(str(df['ON STREET NAME'])+', '+str(df['CROSS STREET NAME']))
+    return inter
+data_raw['Intersection'] = data_raw.apply(intersection, axis = 1)
+
+# Creation of a filtered dataset which doesn't have categories that have no information, ie. Unknown, Other and Unspecified
+# We also removed Passenger Vehicle because it is such a general category that doesn't offer much information
+data_raw_filtered = data_raw[(data_raw['VEHICLE TYPE CODE 1'] != 'PASSENGER VEHICLE') & (data_raw['VEHICLE TYPE CODE 2'] != 'PASSENGER VEHICLE')
+            & (data_raw['VEHICLE TYPE CODE 3'] != 'PASSENGER VEHICLE') & (data_raw['VEHICLE TYPE CODE 4'] != 'PASSENGER VEHICLE') & 
+           (data_raw['VEHICLE TYPE CODE 5'] != 'PASSENGER VEHICLE')]
+
+data_raw_filtered = data_raw[(data_raw['VEHICLE TYPE CODE 1'] != 'UNKNOWN') & (data_raw['VEHICLE TYPE CODE 2'] != 'UNKNOWN')
+            & (data_raw['VEHICLE TYPE CODE 3'] != 'UNKNOWN') & (data_raw['VEHICLE TYPE CODE 4'] != 'UNKNOWN') & 
+           (data_raw['VEHICLE TYPE CODE 5'] != 'UNKNOWN')]
+
+data_raw_filtered = data_raw[(data_raw['VEHICLE TYPE CODE 1'] != 'OTHER') & (data_raw['VEHICLE TYPE CODE 2'] != 'OTHER')
+            & (data_raw['VEHICLE TYPE CODE 3'] != 'OTHER') & (data_raw['VEHICLE TYPE CODE 4'] != 'OTHER') & 
+           (data_raw['VEHICLE TYPE CODE 5'] != 'OTHER')]
+
+data_raw_filtered = data_raw[(data_raw['CONTRIBUTING FACTOR VEHICLE 1'] != 'Unspecified') & (data_raw['CONTRIBUTING FACTOR VEHICLE 2'] != 'Unspecified')
+           & (data_raw['CONTRIBUTING FACTOR VEHICLE 3'] != 'Unspecified') & (data_raw['CONTRIBUTING FACTOR VEHICLE 4'] != 'Unspecified') &
+            (data_raw['CONTRIBUTING FACTOR VEHICLE 5'] != 'Unspecified')]
 
 data_filtered = data_raw_filtered[['NUMBER OF PERSONS INJURED',
        'NUMBER OF PERSONS KILLED', 'NUMBER OF PEDESTRIANS INJURED',
@@ -61,11 +103,24 @@ top_ten_con_fac3.insert(0,'All')
 top_ten_con_fac4.insert(0,'All')
 top_ten_con_fac5.insert(0,'All')
 top_ten_con_facint.insert(0,'All')
-
 ## Frontend display
 st.header('Motor Vehicle Collisions - Crashes')
 st.write("The [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95) data set contain information from all police reported motor vehicle collisions in NYC. The time frame on the data is from 2012 to 2020. The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision.")
-st.subheader("Bar plot of Number of persons injured/killed related to Contributing Factors")
+st.subheader('Basic Statistics:')
+st.write(data_raw_filtered.describe())
+st.subheader('Weekly pattern of collisions')
+# bar plot of nubmer of vehicle colission per hour in whole week
+colission_by_weekhour = data_raw_filtered.groupby(['Weekhour']).size()
+colission_counts_weekhour = colission_by_weekhour.loc[colission_by_weekhour.index]
+fig = plt.figure(figsize=(30,10))
+plt.bar(colission_by_weekhour.index, colission_counts_weekhour)
+plt.xlabel('Weekhour')
+plt.ylabel('Colission Count')
+plt.xticks(rotation=0)
+plt.title('Number of colision on week hours')
+st.pyplot(fig)
+
+st.subheader("Interactive bar plot of Number of persons injured/killed related to Contributing Factors")
 st.write("The bar plot below plots the number of victims injured/ killed by the different contributing factors.\
                 The plot can be viewed in either linear or in log scale. Furthermore, the plot can also be viewed by \
                 ranging the slider to get the idea about which contributing factor is more responsible for injuring/killing \
