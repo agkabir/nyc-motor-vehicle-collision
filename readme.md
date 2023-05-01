@@ -1,6 +1,6 @@
 # Motor Vehicle Collisions - Crashes
 
-In this project # Motor Vehicle Collisions# crash dataset has been analysed. The dataset can be downloaded from [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95). The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Due to constraints in processing time in order to run the visualisation this plot contains 2/41 parts of the original dataset, this amounts 80 000 observation.
+In this project **Motor Vehicle Collisions** crash dataset has been analysed. The dataset can be downloaded from [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95). The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Due to constraints in processing time in order to run the visualisation this plot contains 2/41 parts of the original dataset, this amounts 80 000 observation.
 
 ## Table of contents
 
@@ -13,8 +13,6 @@ In this project # Motor Vehicle Collisions# crash dataset has been analysed. The
   - [What I learned](#what-i-learned)
   - [Useful resources](#useful-resources)
 - [Author](#author)
-
-**Note: Delete this note and update the table of contents based on what sections you keep.**
 
 ## Overview
 
@@ -46,7 +44,7 @@ Users should be able to:
 
 ### What I learned
 
-- Streamlit to delopy data science projects
+- Delopyment of data science projects in streamlit
 - Interactive plot using bokeh
 - Incorporating bokeh plot in streamlit
 
