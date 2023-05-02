@@ -1,6 +1,6 @@
 # Motor Vehicle Collisions - Crashes
 
-In this project **Motor Vehicle Collisions** crash dataset has been analysed. The dataset can be downloaded from [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95). The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Due to constraints in processing time in order to run the visualisation this plot contains 2/41 parts of the original dataset, this amounts 80 000 observation.
+In this project **Motor Vehicle Collisions** crash dataset has been analysed. The dataset can be downloaded from [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95). The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Due to constraints in processing time in order to run the visualisation the plots contains 2.5 percent of the original dataset, this amounts approximately 42,000 observation.
 
 ## Table of contents
 
