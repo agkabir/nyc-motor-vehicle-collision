@@ -105,7 +105,7 @@ top_ten_con_fac5.insert(0,'All')
 top_ten_con_facint.insert(0,'All')
 ## Frontend display
 st.header('Motor Vehicle Collisions - Crashes')
-st.write("The [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95) data set contain information from all police reported motor vehicle collisions in NYC. The time frame on the data is from 2012 to 2020. The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Furthermore due to constraints in processing time in order to run the visualisation this plot contains 2.5 percent of the original dataset, this amounts approximately 42,000 observation.")
+st.write("The [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95) data set contain information from all police reported motor vehicle collisions in NYC. The time frame on the data is from 2012 to 2020. The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Furthermore due to constraints in processing time in order to run the visualisation the plots contains 2.5 percent of the original dataset, this amounts approximately 42,000 observation.")
 st.subheader('Basic Statistics:')
 st.write(data_raw_filtered.describe())
 st.subheader('Weekly pattern of collisions')
