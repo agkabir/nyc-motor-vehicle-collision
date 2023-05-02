@@ -105,7 +105,7 @@ top_ten_con_fac5.insert(0,'All')
 top_ten_con_facint.insert(0,'All')
 ## Frontend display
 st.header('Motor Vehicle Collisions - Crashes')
-st.write("The [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95) data set contain information from all police reported motor vehicle collisions in NYC. The time frame on the data is from 2012 to 2020. The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision.")
+st.write("The [Motor Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95) data set contain information from all police reported motor vehicle collisions in NYC. The time frame on the data is from 2012 to 2020. The dataset contains 1.69 millions of rows and 29 columns and each rows represents Motor Vehicle Collision. Furthermore due to constraints in processing time in order to run the visualisation this plot contains 2.5 percent of the original dataset, this amounts approximately 42,000 observation.")
 st.subheader('Basic Statistics:')
 st.write(data_raw_filtered.describe())
 st.subheader('Weekly pattern of collisions')
@@ -168,7 +168,7 @@ st.subheader('Bar plot of Collisions per hour related to Vehicle type')
 st.write('''This barplot shows the proportion of accidents during the day for the most common vehicle types. 
 It is also possible to filter on the contributing causes for each vehicle in the collision. The labels 
 "Vehicle type code #" and "Contributing factor vehicle #" addresses the different cars involved in an accident
- with number one being the primary car in the accident. This plot may take a while to update and load, please be patient. Furthermore due to constraints in processing time in order to run the visualisation this plot contains 2/41 parts of the original dataset, this amounts 80 000 observation.''')
+ with number one being the primary car in the accident. This plot may take a while to update and load, please be patient.''')
 ## Making tab and intersection plot
 vec_type_list = list(['VEHICLE TYPE CODE 1','VEHICLE TYPE CODE 2','VEHICLE TYPE CODE 3','VEHICLE TYPE CODE 4',
 'VEHICLE TYPE CODE 5', 'Intersection'])
